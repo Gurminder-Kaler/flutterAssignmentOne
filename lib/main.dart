@@ -35,56 +35,39 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final noOfHours = TextEditingController();
-    final hourlyRate = TextEditingController();
-    void computeFunc() {
-      print(noOfHours.text);
-      print(hourlyRate.text);
-      if (noOfHours.text.isEmpty) {
-        AlertDialog(
-          title: const Text('AlertDialog Title'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: const <Widget>[
-                Text('Please fill No. of Hours.'),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Approve'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
+    final noOfHoursController = TextEditingController();
+    final hourlyRateController = TextEditingController();
+    final resultController = TextEditingController();
+    computeFunc() {
+      if (noOfHoursController.text.isEmpty == true) {
+        showAlertDialog(context, const Text('No of hours field is required!'));
+        return;
       }
-      if (hourlyRate.text.isEmpty) {
-        AlertDialog(
-          title: const Text('AlertDialog Title'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: const <Widget>[
-                Text('Please fill hourly rate.'),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Approve'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
+      if (hourlyRateController.text.isEmpty == true) {
+        showAlertDialog(context, const Text('Hourly rate field is required!'));
+        return;
       }
+      var noOfHours = int.parse(noOfHoursController.text);
+      var hourlyRate = int.parse(hourlyRateController.text);
+      var total = 0.0;
+      var extra = 0.0;
+      var tax = 0.0;
+      if (noOfHours <= 40) {
+        total = noOfHours * 1.0 * hourlyRate;
+      } else {
+        extra = hourlyRate * 1.5;
+        total = (noOfHours - 40) * extra + (40 * hourlyRate);
+      }
+      print(extra);
+      tax = total * 0.18;
+      resultController.text =
+          'Report (All Amounts are in CAD \$)\nRegular Pay: ${total.toStringAsFixed(2)}\n+40 hrs Overtime Pay: ${extra..toStringAsFixed(2)}\nTotal Pay: ${(total + tax).toStringAsFixed(2)}\nTax: ${tax.toStringAsFixed(2)} \n';
+      tax.toString();
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text('Assignment 1'),
       ),
       body: Center(
         child: Column(
@@ -97,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                   child: TextField(
-                    controller: noOfHours,
+                    controller: noOfHoursController,
                     inputFormatters: <TextInputFormatter>[
                       FilteringTextInputFormatter.digitsOnly
                     ],
@@ -112,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                   child: TextField(
-                    controller: hourlyRate,
+                    controller: hourlyRateController,
                     inputFormatters: <TextInputFormatter>[
                       FilteringTextInputFormatter.digitsOnly
                     ],
@@ -131,19 +114,25 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: const Text('Click to Compute the Wage'),
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                   child: Card(
                       color: Colors.grey,
                       child: Padding(
-                        padding: EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: TextField(
+                          controller: resultController,
                           enabled: false,
                           maxLines: 8, //or null
-                          decoration: InputDecoration.collapsed(
-                              hintText: "See Your output here."),
+                          decoration: const InputDecoration.collapsed(
+                              hintText: "See you income here.."),
                         ),
                       )),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                  child: Text('Gurminder Singh\n 301294300'),
                 ),
               ],
             )
@@ -152,4 +141,32 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+}
+
+showAlertDialog(BuildContext context, message) {
+  print(message);
+  // Create button
+  Widget okButton = TextButton(
+    child: const Text("OK"),
+    onPressed: () {
+      Navigator.of(context).pop();
+    },
+  );
+
+  // Create AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: const Text("Error"),
+    content: message,
+    actions: [
+      okButton,
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
 }
